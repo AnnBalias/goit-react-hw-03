@@ -1,27 +1,46 @@
+import { useEffect, useState } from 'react';
 // import components
-import Profile from './components/Profile/Profile';
-import FriendList from './components/FriendList/FriendList';
-import TransactionHistory from './components/TransactionHistory/TransactionHistory';
+import ContactForm from './components/ContactForm/ContactForm';
+import SearchBox from './components/SearchBox/SearchBox';
+import ContactList from './components/ContactList/ContactList';
 // import json
-import userData from "./userData.json";
-import friends from "./friends.json";
-import transactions from "./transactions.json";
+import contacts from "./contacts.json";
 // import styles
 import './App.css'
 
 const App = () => {
+  const [contactsList, setContactList] = useState(() => {
+    const localData = JSON.parse(localStorage.getItem("contacts"));
+      if (localData) {
+        return localData;
+      }
+    return contacts
+  });
+// ooooooooooooooooooooooooooo
+  const handleAdd = (newCont) => {
+    setContactList((prev) => [...prev, newCont])
+	};
+// ooooooooooooooooooooooooooo 
+  const [search, setSearch] = useState("");
+
+  const handSearch = contactsList.filter(item => item.name.toLowerCase().includes(search.toLocaleLowerCase()))
+
+  const hendDelete = (id) => {
+    const newContactsList = contactsList.filter((item) => item.id !== id);
+    setContactList(newContactsList);
+  }
+
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contactsList))
+  }, [contactsList])
+  
   return (
-    <>
-      <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
-      />
-      <FriendList friends={ friends } />
-      <TransactionHistory items={transactions} />
-    </>
+    <div>
+      <h1 className='header'>Phonebook</h1>
+      <ContactForm handleAdd={handleAdd} />
+      <SearchBox search={search} setSearch={setSearch}/>
+      <ContactList contactArr={ handSearch } hendDelete={hendDelete} />
+    </div>
   );
 };
 
